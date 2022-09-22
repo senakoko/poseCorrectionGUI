@@ -22,7 +22,7 @@ pip install -r requirements.txt
 Make sure you are in the autoposegui folder
 ```commandline
 cd posecorrectiongui
-python main_gui.py
+python mainApp.py
 ```
 
 ### Note:
