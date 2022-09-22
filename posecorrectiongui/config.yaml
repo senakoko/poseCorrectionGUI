@@ -1,0 +1,96 @@
+### Define where most of your videos and H5 files are located. The GUI uses this information as the initial folder to
+### open the file browser
+
+videos_main_path:
+- /Users/senaagezo/Downloads/Test/
+
+h5files_path:
+- /Users/senaagezo/Downloads/Test/
+
+### Define the animals in the H5 files and the body parts that were labeled
+animals:
+- ind1
+- ind2
+
+body_parts:
+- Nose
+- leftEar
+- betweenEars
+- rightEar
+- leftHip
+- midHip
+- rightHip
+- rightAntWaist
+- rightMidWaist
+- rightPosWaist
+- leftAntWaist
+- leftMidWaist
+- leftPosWaist
+- tailStart
+- Nose_betweenEars
+- leftEar_betweenEars
+- betweenEars_rightEar
+- betweenEars_midBody
+- midBody_midHip
+- leftHip_midHip
+- midHip_rightHip
+
+### Defining skeleton to plot on Videos
+
+skeleton:
+  - - betweenEars
+    - betweenEars_rightEar
+  - - leftEar
+    - leftEar_betweenEars
+  - - leftHip
+    - leftPosWaist
+  - - midHip
+    - leftHip_midHip
+  - - rightAntWaist
+    - rightMidWaist
+  - - rightAntWaist
+    - betweenEars_midBody
+  - - Nose
+    - Nose_betweenEars
+  - - Nose
+    - rightEar
+  - - leftEar
+    - leftAntWaist
+  - - leftAntWaist
+    - betweenEars_midBody
+  - - betweenEars
+    - betweenEars_midBody
+  - - leftMidWaist
+    - leftPosWaist
+  - - rightHip
+    - rightPosWaist
+  - - midHip
+    - midHip_rightHip
+  - - leftPosWaist
+    - midBody_midHip
+  - - betweenEars
+    - Nose_betweenEars
+  - - rightHip
+    - tailStart
+  - - rightMidWaist
+    - rightPosWaist
+  - - leftHip
+    - leftHip_midHip
+  - - rightHip
+    - midHip_rightHip
+  - - leftAntWaist
+    - leftMidWaist
+  - - betweenEars
+    - leftEar_betweenEars
+  - - Nose
+    - leftEar
+  - - rightEar
+    - rightAntWaist
+  - - midHip
+    - midBody_midHip
+  - - rightEar
+    - betweenEars_rightEar
+  - - leftHip
+    - tailStart
+  - - rightPosWaist
+    - midBody_midHip

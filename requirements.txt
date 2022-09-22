@@ -1,0 +1,8 @@
+numpy
+pandas
+opencv-python
+pyside6
+PyYAML
+tables
+scikit-image
+easydict
