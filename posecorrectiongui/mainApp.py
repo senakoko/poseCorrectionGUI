@@ -402,7 +402,10 @@ class MainGUI(QMainWindow):
             if self.val_num == '':
                 self.val_num = '15'
             self.jump_number.setText(str(self.val_num))
-            self.frame_number += int(self.val_num)
+            try:
+                self.frame_number += int(self.val_num)
+            except ValueError:
+                QtWidgets.QMessageBox.warning(self, 'ValueError', 'invalid number entered - integer required')
             if self.frame_number > self.length:
                 self.frame_number = self.length
             self.goto_frame.setText(str(self.frame_number))
@@ -429,7 +432,10 @@ class MainGUI(QMainWindow):
             if self.val_num == '':
                 self.val_num = '15'
             self.jump_number.setText(str(self.val_num))
-            self.frame_number -= int(self.val_num)
+            try:
+                self.frame_number -= int(self.val_num)
+            except ValueError:
+                QtWidgets.QMessageBox.warning(self, 'ValueError', 'invalid number entered - integer required')
             if self.frame_number < 0:
                 self.frame_number = 0
             self.goto_frame.setText(str(self.frame_number))
@@ -504,8 +510,11 @@ class MainGUI(QMainWindow):
     def event_swap_sequence(self):
         try:
             if self.h5_name:
-                from_frame_number = int(self.frame_from.text())
-                to_frame_number = int(self.frame_to.text())
+                try:
+                    from_frame_number = int(self.frame_from.text())
+                    to_frame_number = int(self.frame_to.text())
+                except ValueError:
+                    QtWidgets.QMessageBox.warning(self, 'ValueError', 'invalid number entered - integer required')
                 if to_frame_number == self.length:
                     to_frame_number = to_frame_number
                 else:
@@ -527,7 +536,10 @@ class MainGUI(QMainWindow):
                 if steps == '':
                     steps = '1'
                     self.prop_line.setText(steps)
-                steps = int(steps)
+                try:
+                    steps = int(steps)
+                except ValueError:
+                    QtWidgets.QMessageBox.warning(self, 'ValueError', 'invalid number entered - integer required')
                 if steps == 1:
                     steps += 1
                 animal_ident = self.prop_animal.currentText()
@@ -548,7 +560,10 @@ class MainGUI(QMainWindow):
                 if steps == '':
                     steps = '1'
                     self.prop_line.setText(steps)
-                steps = int(steps)
+                try:
+                    steps = int(steps)
+                except ValueError:
+                    QtWidgets.QMessageBox.warning(self, 'ValueError', 'invalid number entered - integer required')
                 animal_ident = self.prop_animal.currentText()
                 propagate_frame(self.h5, self.frame_number, self.h5_name, 'backward', steps, animal_ident)
                 self.h5 = pd.read_hdf(self.h5_name)
