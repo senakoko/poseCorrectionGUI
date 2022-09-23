@@ -5,9 +5,9 @@ import cv2
 import pandas as pd
 import re
 
-from PySide6 import QtWidgets
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QAction, QIcon, QKeySequence, QScreen
+from PySide6 import QtWidgets, QtGui
+from PySide6.QtCore import Qt, QPoint
+from PySide6.QtGui import QAction, QIcon, QKeySequence, QScreen, QPainter
 from PySide6.QtWidgets import (QApplication, QFileDialog,
                                QMainWindow, QToolBar)
 
@@ -51,6 +51,15 @@ class MainGUI(QMainWindow):
         self.animals_list = config['animals']
         self.animals_identity = self.animals_list.copy()
         self.animals_identity.append('both')
+
+        self.body_parts_keys = {}
+        for i, v in enumerate(self.body_parts):
+            self.body_parts_keys[v] = i
+
+        self.animal_bodypoints = {}
+        self.bodypoints1 = {}
+        self.bodypoints2 = {}
+        self.index = 0
         self.frame_number = 0
 
         self.create_ui()
@@ -68,6 +77,8 @@ class MainGUI(QMainWindow):
         self.event_swap_frame()
         self.event_swap_sequence()
         self.event_propagate_forward()
+        self.event_propagate_backward()
+        self.event_relabel_animals()
         self.create_menu_bar()
         self.create_toolbar()
 
@@ -232,6 +243,8 @@ class MainGUI(QMainWindow):
         self.relabel_button = QtWidgets.QPushButton('Relabel')
         self.relabel_button.setFont(font)
         self.relabel_button.setFixedWidth(150)
+        self.relabel_button.clicked.connect(self.event_relabel_animals)
+        self.relabel_button.setShortcut(QKeySequence("Ctrl+'"))
 
         self.label_animal = QtWidgets.QComboBox()
         # Add animals to label list
@@ -242,6 +255,7 @@ class MainGUI(QMainWindow):
         self.body_parts_list = QtWidgets.QListWidget()
         # Add body parts to widgets
         self.body_parts_list.addItems(self.body_parts)
+        self.body_parts_list.setCurrentRow(0)
         self.scrollArea = QtWidgets.QScrollArea()
         self.scrollArea.setWidget(self.body_parts_list)
         self.scrollArea.setFixedWidth(120)
@@ -527,6 +541,61 @@ class MainGUI(QMainWindow):
                 self.imageLabel.setPixmap(qt_image_process(self.image))
         except AttributeError:
             QtWidgets.QMessageBox.warning(self, 'Error', 'Load the Video first')
+
+    def event_relabel_animals(self):
+        if self.video_name:
+            self.cap.set(1, self.frame_number)
+            ret, self.image = self.cap.read()
+            self.image = process_frame(self.image, scale_factor=self.parameters.scale_factor)
+            self.imageLabel.setPixmap(qt_image_process(self.image))
+            # self.setFixedWidth(self.width())
+            # self.setFixedHeight(self.height())
+            self.animal_bodypoints = {}
+            self.bodypoints1 = {}
+            self.bodypoints2 = {}
+            self.index = 0
+
+    def mousePressEvent(self, event: QtGui.QMouseEvent) -> None:
+        if event.button() == Qt.RightButton:
+            canvas = self.imageLabel.pixmap()
+            painter = QPainter(canvas)
+            pen = painter.pen()
+            pen.setWidth(6)
+            animal_id = self.label_animal.currentText()
+            if self.label_animal.currentIndex() == 1:
+                pen.setColor(QtGui.QColor('blue'))
+            else:
+                pen.setColor(QtGui.QColor('red'))
+            painter.setPen(pen)
+            self.calculate_image_pos()
+            globalPos = event.scenePosition().toPoint()
+            mouse_x_value, mouse_y_value = globalPos.x(), globalPos.y()
+            x_value = mouse_x_value - self.image_x_value
+            y_value = mouse_y_value - self.image_y_value
+            start_point = (x_value, y_value)
+            draw_value = QPoint(x_value, y_value)
+            painter.drawPoint(draw_value)
+            painter.end()
+
+            bpt = self.body_parts[self.body_parts_list.currentRow()]
+            if animal_id == self.animals_list[1]:
+                self.bodypoints2[bpt] = start_point
+                self.animal_bodypoints[animal_id] = self.bodypoints2
+            else:
+                self.bodypoints1[bpt] = start_point
+                self.animal_bodypoints[animal_id] = self.bodypoints1
+
+            self.index = self.body_parts_keys[bpt]
+            self.index += 1
+            if self.index == len(self.body_parts):
+                self.index = 0
+            self.body_parts_list.setCurrentRow(self.index)
+            self.imageLabel.setPixmap(canvas)
+
+    def calculate_image_pos(self):
+        # check if any toolbar is at the starting corner
+        self.image_x_value = self.imageLabel.pos().x()
+        self.image_y_value = self.imageLabel.pos().y()
 
     def my_exit_handler(self):
         try:
