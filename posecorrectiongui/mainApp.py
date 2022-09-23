@@ -18,6 +18,8 @@ from saveLastFrameNumber import save_last_frame_number
 from plotTrackedPoints import plot_tracked_points
 from swapLabels import swap_labels, swap_label_sequences
 from propagateFrame import propagate_frame
+from relabelPoints import relabel_points
+from updateH5file import update_h5file
 
 
 class MainGUI(QMainWindow):
@@ -264,6 +266,7 @@ class MainGUI(QMainWindow):
         self.done_label_button = QtWidgets.QPushButton('Done Labeling')
         self.done_label_button.setFont(font)
         self.done_label_button.setFixedWidth(150)
+        self.done_label_button.clicked.connect(self.event_done_labeling)
 
         self.frame_slider_widget = QtWidgets.QSlider(Qt.Horizontal)
         self.frame_slider_widget.setRange(0, 100)
@@ -280,23 +283,33 @@ class MainGUI(QMainWindow):
             self.cap = cv2.VideoCapture(self.video_name)
             self.length = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT)) - 1
             self.frame_slider_widget.setRange(0, self.length)
-            if self.last_frame_path.exists():
-                if self.video_name in self.last_frame_data.keys():
-                    self.frame_number = self.last_frame_data[self.video_name]
-                    self.cap.set(1, self.frame_number)
-                ret, self.image = self.cap.read()
-            else:
-                ret, self.image = self.cap.read()
-            self.frame_slider_widget.setValue(self.frame_number)
+            ret, self.image = self.cap.read()
             self.image = process_frame(self.image, scale_factor=self.parameters.scale_factor)
             self.imageLabel.setPixmap(qt_image_process(self.image))
             self.frame_number_widget.setText(f"Frames: {self.frame_number} / {self.length}")
+            if self.last_frame_path.exists():
+                if self.video_name in self.last_frame_data.keys():
+                    self.move_to_last_labeled_frame()
         except AttributeError:
             QtWidgets.QMessageBox.warning(self, 'Error', 'Unable to load the Video \n'
                                                          'Make sure to load right the video')
         except FileNotFoundError:
             QtWidgets.QMessageBox.warning(self, 'Error', 'File  does not exist \n'
                                                          'You might need to restart the GUI')
+
+    def move_to_last_labeled_frame(self):
+        last_frame_output = QtWidgets.QMessageBox.question(self, 'Last Frame',
+                                                           'Do you want to go to the last labeled frame',
+                                                           buttons=(QtWidgets.QMessageBox.StandardButton.Yes |
+                                                                    QtWidgets.QMessageBox.StandardButton.No),
+                                                           defaultButton=QtWidgets.QMessageBox.StandardButton.Yes)
+        if last_frame_output == QtWidgets.QMessageBox.StandardButton.Yes:
+            self.frame_number = self.last_frame_data[self.video_name]
+            self.cap.set(1, self.frame_number)
+            ret, self.image = self.cap.read()
+            self.frame_slider_widget.setValue(self.frame_number)
+            self.imageLabel.setPixmap(qt_image_process(self.image))
+            self.frame_number_widget.setText(f"Frames: {self.frame_number} / {self.length}")
 
     # Load the H5 file and plot it
     def open_h5_file(self) -> None:
@@ -558,6 +571,16 @@ class MainGUI(QMainWindow):
             self.bodypoints2 = {}
             self.index = 0
 
+    def event_done_labeling(self):
+        self.cap.set(1, self.frame_number)
+        ret, self.image = self.cap.read()
+        new_points = relabel_points(self.animal_bodypoints, self.body_parts, self.scale_factor)
+        update_h5file(new_points, self.h5, self.frame_number, self.h5_name)
+        self.h5 = pd.read_hdf(self.h5_name)
+        self.image = plot_tracked_points(self.image, self.h5, self.frame_number, self.skeleton)
+        self.image = process_frame(self.image, scale_factor=self.scale_factor)
+        self.imageLabel.setPixmap(qt_image_process(self.image))
+
     def mousePressEvent(self, event: QtGui.QMouseEvent) -> None:
         if event.button() == Qt.RightButton:
             canvas = self.imageLabel.pixmap()
@@ -575,7 +598,7 @@ class MainGUI(QMainWindow):
             mouse_x_value, mouse_y_value = globalPos.x(), globalPos.y()
             x_value = mouse_x_value - self.image_x_value
             y_value = mouse_y_value - self.image_y_value
-            start_point = (x_value * (1/self.scale_factor), y_value * (1/self.scale_factor))
+            start_point = (x_value, y_value)
             draw_value = QPoint(x_value, y_value)
             painter.drawPoint(draw_value)
             painter.end()
