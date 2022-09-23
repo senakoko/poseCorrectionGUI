@@ -90,13 +90,16 @@ class MainGUI(QMainWindow):
         self.file_menu.addAction(self.open_video_action)
         self.file_menu.addAction(self.open_h5_action)
 
-        self.edit_menu = self.menuBar().addMenu("&Edit Video")
-        self.edit_menu.addAction(self.next_frame_action)
-        self.edit_menu.addAction(self.previous_frame_action)
-        self.edit_menu.addAction(self.jump_forward_action)
-        self.edit_menu.addAction(self.jump_backward_action)
-        self.edit_menu.addAction(self.mark_start_action)
-        self.edit_menu.addAction(self.mark_end_action)
+        # self.edit_menu = self.menuBar().addMenu("&Edit Video")
+        # self.edit_menu.addAction(self.next_frame_action)
+        # self.edit_menu.addAction(self.previous_frame_action)
+        # self.edit_menu.addAction(self.jump_forward_action)
+        # self.edit_menu.addAction(self.jump_backward_action)
+        # self.edit_menu.addAction(self.mark_start_action)
+        # self.edit_menu.addAction(self.mark_end_action)
+
+        self.help_menu = self.menuBar().addMenu("&Help")
+        self.help_menu.addAction(self.help_action)
 
     def create_toolbar(self) -> None:
         self.top_toolbar = QToolBar('Load Video and H5file Toolbar')
@@ -155,6 +158,10 @@ class MainGUI(QMainWindow):
                                       self, shortcut=QKeySequence("Ctrl+i"),
                                       statusTip="Open H5 file",
                                       triggered=self.open_h5_file)
+
+        self.help_action = QAction(QIcon(), '&Show Shortcuts',
+                                   self, shortcut=QKeySequence("Ctrl+p"),
+                                   triggered=self.show_shortcuts)
 
     def create_frame_action(self) -> None:
         self.next_frame_action = QAction(QIcon(), '&Next Frame', self,
@@ -257,7 +264,7 @@ class MainGUI(QMainWindow):
         self.relabel_button.setFont(font)
         self.relabel_button.setFixedWidth(150)
         self.relabel_button.clicked.connect(self.event_relabel_animals)
-        self.relabel_button.setShortcut(QKeySequence("Ctrl+;"))
+        self.relabel_button.setShortcut(QKeySequence("Ctrl+l"))
 
         self.label_animal = QtWidgets.QComboBox()
         # Add animals to label list
@@ -279,6 +286,7 @@ class MainGUI(QMainWindow):
         self.done_label_button.setFont(font)
         self.done_label_button.setFixedWidth(150)
         self.done_label_button.clicked.connect(self.event_done_labeling)
+        self.done_label_button.setShortcut(QKeySequence("Ctrl+;"))
 
         self.label_with_left_click = QtWidgets.QCheckBox('Left Click Label')
         self.label_with_left_click.setFont(font)
@@ -346,6 +354,22 @@ class MainGUI(QMainWindow):
             self.imageLabel.setPixmap(qt_image_process(self.image))
         except AttributeError:
             QtWidgets.QMessageBox.warning(self, 'Error', 'Load the Video first')
+
+    def show_shortcuts(self) -> None:
+        QtWidgets.QMessageBox.about(self, "Show Shortcuts",
+                                    "Next Frame\t\t --> Right Arrow \n"
+                                    "Previous Frame\t --> Left Arrow \n"
+                                    "Jump Forward\t --> Up Arrow \n"
+                                    "Jump Backward\t --> Down Arrow \n"
+                                    "Swap Labels\t --> Ctrl + ' \n"
+                                    "Mark Start\t\t --> Ctrl + , \n"
+                                    "Mark End\t\t --> Ctrl + . \n"
+                                    "Swap Sequence\t --> Ctrl + / \n"
+                                    "Propagate Forward\t --> Ctrl + ] \n"
+                                    "Propagate Backward\t --> Ctrl + [ \n"
+                                    "Relabel\t\t --> Ctrl + l \n"
+                                    "Done Labeling\t --> Ctrl + ; \n"
+                                    )
 
     # Sliding through the video
     def event_frame_slider(self) -> None:
@@ -606,14 +630,17 @@ class MainGUI(QMainWindow):
             self.index = 0
 
     def event_done_labeling(self):
-        self.cap.set(1, self.frame_number)
-        ret, self.image = self.cap.read()
-        new_points = relabel_points(self.animal_bodypoints, self.body_parts, self.scale_factor)
-        update_h5file(new_points, self.h5, self.frame_number, self.h5_name)
-        self.h5 = pd.read_hdf(self.h5_name)
-        self.image = plot_tracked_points(self.image, self.h5, self.frame_number, self.skeleton)
-        self.image = process_frame(self.image, scale_factor=self.scale_factor)
-        self.imageLabel.setPixmap(qt_image_process(self.image))
+        try:
+            self.cap.set(1, self.frame_number)
+            ret, self.image = self.cap.read()
+            new_points = relabel_points(self.animal_bodypoints, self.body_parts, self.scale_factor)
+            update_h5file(new_points, self.h5, self.frame_number, self.h5_name)
+            self.h5 = pd.read_hdf(self.h5_name)
+            self.image = plot_tracked_points(self.image, self.h5, self.frame_number, self.skeleton)
+            self.image = process_frame(self.image, scale_factor=self.scale_factor)
+            self.imageLabel.setPixmap(qt_image_process(self.image))
+        except AttributeError:
+            QtWidgets.QMessageBox.warning(self, 'Error', 'Load the Video first')
 
     def event_update_selection(self):
         self.index = 0
