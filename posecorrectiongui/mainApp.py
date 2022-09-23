@@ -89,6 +89,14 @@ class MainGUI(QMainWindow):
         self.file_menu.addAction(self.open_video_action)
         self.file_menu.addAction(self.open_h5_action)
 
+        self.edit_menu = self.menuBar().addMenu("&Edit Video")
+        self.edit_menu.addAction(self.next_frame_action)
+        self.edit_menu.addAction(self.previous_frame_action)
+        self.edit_menu.addAction(self.jump_forward_action)
+        self.edit_menu.addAction(self.jump_backward_action)
+        self.edit_menu.addAction(self.mark_start_action)
+        self.edit_menu.addAction(self.mark_end_action)
+
     def create_toolbar(self) -> None:
         self.top_toolbar = QToolBar('Load Video and H5file Toolbar')
         self.addToolBar(self.top_toolbar)
@@ -146,38 +154,38 @@ class MainGUI(QMainWindow):
                                       triggered=self.open_h5_file)
 
     def create_frame_action(self) -> None:
-        self.next_frame_action = QAction(QIcon(), 'Next Frame',
-                                         statusTip="Go to the next Frame",
+        self.next_frame_action = QAction(QIcon(), '&Next Frame', self,
+                                         toolTip="Go to the next Frame",
                                          triggered=self.event_next_frame,
                                          shortcut=QKeySequence("right")
                                          )
 
         self.previous_frame_action = QAction(QIcon(), 'Previous Frame',
-                                             statusTip="Go to the previous Frame",
+                                             toolTip="Go to the previous Frame",
                                              triggered=self.event_previous_frame,
                                              shortcut=QKeySequence("left")
                                              )
 
         self.jump_forward_action = QAction(QIcon(), 'Jump Forward',
-                                           statusTip="Jump Forward N Frames",
+                                           toolTip="Jump Forward N Frames",
                                            triggered=self.event_jump_forward,
                                            shortcut=QKeySequence("up")
                                            )
 
         self.jump_backward_action = QAction(QIcon(), 'Jump Backward',
-                                            statusTip="Jump Backward N Frames",
+                                            toolTip="Jump Backward N Frames",
                                             triggered=self.event_jump_backward,
                                             shortcut=QKeySequence("down")
                                             )
 
         self.mark_start_action = QAction(QIcon(), 'Mark Start',
-                                         statusTip="Mark Start to Swap Sequence",
+                                         toolTip="Mark Start to Swap Sequence",
                                          triggered=self.event_mark_start,
                                          shortcut=QKeySequence("Ctrl+,")
                                          )
 
         self.mark_end_action = QAction(QIcon(), 'Mark End',
-                                       statusTip="Mark Start to Swap Sequence",
+                                       toolTip="Mark End to Swap Sequence",
                                        triggered=self.event_mark_end,
                                        shortcut=QKeySequence("Ctrl+.")
                                        )
