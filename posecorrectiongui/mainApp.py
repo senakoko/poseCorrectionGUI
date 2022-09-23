@@ -149,37 +149,37 @@ class MainGUI(QMainWindow):
         self.next_frame_action = QAction(QIcon(), 'Next Frame',
                                          statusTip="Go to the next Frame",
                                          triggered=self.event_next_frame,
-                                         shortcut=QKeySequence("Ctrl+.")
+                                         shortcut=QKeySequence("right")
                                          )
 
         self.previous_frame_action = QAction(QIcon(), 'Previous Frame',
                                              statusTip="Go to the previous Frame",
                                              triggered=self.event_previous_frame,
-                                             shortcut=QKeySequence("Ctrl+,")
+                                             shortcut=QKeySequence("left")
                                              )
 
         self.jump_forward_action = QAction(QIcon(), 'Jump Forward',
                                            statusTip="Jump Forward N Frames",
                                            triggered=self.event_jump_forward,
-                                           shortcut=QKeySequence("Ctrl+]")
+                                           shortcut=QKeySequence("up")
                                            )
 
         self.jump_backward_action = QAction(QIcon(), 'Jump Backward',
                                             statusTip="Jump Backward N Frames",
                                             triggered=self.event_jump_backward,
-                                            shortcut=QKeySequence("Ctrl+[")
+                                            shortcut=QKeySequence("down")
                                             )
 
         self.mark_start_action = QAction(QIcon(), 'Mark Start',
                                          statusTip="Mark Start to Swap Sequence",
                                          triggered=self.event_mark_start,
-                                         shortcut=QKeySequence("Ctrl+k")
+                                         shortcut=QKeySequence("Ctrl+,")
                                          )
 
         self.mark_end_action = QAction(QIcon(), 'Mark End',
                                        statusTip="Mark Start to Swap Sequence",
                                        triggered=self.event_mark_end,
-                                       shortcut=QKeySequence("Ctrl+l")
+                                       shortcut=QKeySequence("Ctrl+.")
                                        )
 
     def create_widgets(self) -> None:
@@ -202,7 +202,7 @@ class MainGUI(QMainWindow):
         font.setPointSize(15)
         self.swap_labels.setFont(font)
         self.swap_labels.clicked.connect(self.event_swap_frame)
-        self.swap_labels.setShortcut(QKeySequence("Ctrl+/"))
+        self.swap_labels.setShortcut(QKeySequence("Ctrl+'"))
 
         self.frame_from = QtWidgets.QLineEdit()
         self.frame_from.setPlaceholderText('From')
@@ -217,7 +217,7 @@ class MainGUI(QMainWindow):
         font.setPointSize(15)
         self.swap_sequence_button.setFont(font)
         self.swap_sequence_button.clicked.connect(self.event_swap_sequence)
-        self.swap_sequence_button.setShortcut(QKeySequence("Ctrl+;"))
+        self.swap_sequence_button.setShortcut(QKeySequence("Ctrl+/"))
 
         self.prop_animal = QtWidgets.QComboBox()
         # Add animals to propagate list
@@ -229,7 +229,7 @@ class MainGUI(QMainWindow):
         self.prop_forward.setFont(font)
         self.prop_forward.setFixedWidth(150)
         self.prop_forward.clicked.connect(self.event_propagate_forward)
-        self.prop_forward.setShortcut(QKeySequence("Ctrl+m"))
+        self.prop_forward.setShortcut(QKeySequence("Ctrl+]"))
 
         self.prop_line = QtWidgets.QLineEdit()
         self.prop_line.setFont(font)
@@ -240,13 +240,13 @@ class MainGUI(QMainWindow):
         self.prop_backward.setFont(font)
         self.prop_backward.setFixedWidth(150)
         self.prop_backward.clicked.connect(self.event_propagate_backward)
-        self.prop_backward.setShortcut(QKeySequence("Ctrl+n"))
+        self.prop_backward.setShortcut(QKeySequence("Ctrl+["))
 
         self.relabel_button = QtWidgets.QPushButton('Relabel')
         self.relabel_button.setFont(font)
         self.relabel_button.setFixedWidth(150)
         self.relabel_button.clicked.connect(self.event_relabel_animals)
-        self.relabel_button.setShortcut(QKeySequence("Ctrl+'"))
+        self.relabel_button.setShortcut(QKeySequence("Ctrl+;"))
 
         self.label_animal = QtWidgets.QComboBox()
         # Add animals to label list
@@ -623,6 +623,9 @@ class MainGUI(QMainWindow):
             self.body_parts_list.setCurrentRow(self.index)
             self.imageLabel.setPixmap(canvas)
 
+    def mouseDoubleClickEvent(self, event: QtGui.QMouseEvent) -> None:
+        self.top_toolbar.setFocus()
+
     def calculate_image_pos(self):
         # check if any toolbar is at the starting corner
         self.image_x_value = self.imageLabel.pos().x()
@@ -648,6 +651,7 @@ def main():
     # widget.move(frmX, frmY)
     widget.move(40, 40)
     widget.show()
+    widget.top_toolbar.setFocus()
     sys.exit(app.exec())
 
 
