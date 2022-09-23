@@ -32,6 +32,7 @@ class MainGUI(QMainWindow):
         # Initialize values
         self.video_name = video_name
         self.h5_name = h5_name
+        self.click_label_button = Qt.RightButton
 
         # Using Configuration Files ############################################################################
         config_path = Path('.') / 'config.yaml'
@@ -136,6 +137,8 @@ class MainGUI(QMainWindow):
         self.right_side_toolbar.addWidget(self.label_animal)
         self.right_side_toolbar.addWidget(self.scrollArea)
         self.right_side_toolbar.addWidget(self.done_label_button)
+        self.right_side_toolbar.addSeparator()
+        self.right_side_toolbar.addWidget(self.label_with_left_click)
 
         self.slider_toolbar = QToolBar('Slider Dock')
         self.addToolBar(Qt.BottomToolBarArea, self.slider_toolbar)
@@ -276,6 +279,11 @@ class MainGUI(QMainWindow):
         self.done_label_button.setFont(font)
         self.done_label_button.setFixedWidth(150)
         self.done_label_button.clicked.connect(self.event_done_labeling)
+
+        self.label_with_left_click = QtWidgets.QCheckBox('Left Click Label')
+        self.label_with_left_click.setFont(font)
+        self.label_with_left_click.setFixedWidth(150)
+        # self.label_with_left_click.stateChanged.connect(self.event_label_with_left_click)
 
         self.frame_slider_widget = QtWidgets.QSlider(Qt.Horizontal)
         self.frame_slider_widget.setRange(0, 100)
@@ -610,7 +618,12 @@ class MainGUI(QMainWindow):
         self.body_parts_list.setCurrentRow(self.index)
 
     def mousePressEvent(self, event: QtGui.QMouseEvent) -> None:
-        if event.button() == Qt.RightButton:
+        if self.label_with_left_click.isChecked():
+            self.click_label_button = Qt.LeftButton
+        else:
+            self.click_label_button = Qt.RightButton
+
+        if event.button() == self.click_label_button:
             canvas = self.imageLabel.pixmap()
             painter = QPainter(canvas)
             pen = painter.pen()
@@ -648,6 +661,9 @@ class MainGUI(QMainWindow):
 
     def mouseDoubleClickEvent(self, event: QtGui.QMouseEvent) -> None:
         self.top_toolbar.setFocus()
+
+    # def event_label_with_left_click(self):
+    #     self.click_label_button = Qt.LeftButton
 
     def calculate_image_pos(self):
         # check if any toolbar is at the starting corner
