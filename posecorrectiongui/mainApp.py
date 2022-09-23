@@ -441,7 +441,10 @@ class MainGUI(QMainWindow):
             self.goto_num = self.goto_frame.text()
             if self.goto_num == '':
                 self.goto_num = '0'
-            self.frame_number = int(self.goto_num)
+            try:
+                self.frame_number = int(self.goto_num)
+            except ValueError:
+                QtWidgets.QMessageBox.warning(self, 'ValueError', 'invalid number entered')
             self.goto_frame.setText(str(self.frame_number))
             self.frame_slider_widget.setValue(self.frame_number)
             if self.video_name:
@@ -572,7 +575,7 @@ class MainGUI(QMainWindow):
             mouse_x_value, mouse_y_value = globalPos.x(), globalPos.y()
             x_value = mouse_x_value - self.image_x_value
             y_value = mouse_y_value - self.image_y_value
-            start_point = (x_value, y_value)
+            start_point = (x_value * (1/self.scale_factor), y_value * (1/self.scale_factor))
             draw_value = QPoint(x_value, y_value)
             painter.drawPoint(draw_value)
             painter.end()
@@ -612,9 +615,10 @@ def main():
     widget.resize(800, 800)
     widget.setWindowTitle('Pose Correction GUI')
     SrcSize = QScreen.availableGeometry(QApplication.primaryScreen())
-    frmX = (SrcSize.width() - widget.width()) / 2
-    frmY = (SrcSize.height() - widget.height()) / 2
-    widget.move(frmX, frmY)
+    # frmX = (SrcSize.width() - widget.width()) / 2
+    # frmY = (SrcSize.height() - widget.height()) / 2
+    # widget.move(frmX, frmY)
+    widget.move(40, 40)
     widget.show()
     sys.exit(app.exec())
 
