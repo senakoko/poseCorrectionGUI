@@ -307,6 +307,10 @@ class MainGUI(QMainWindow):
             if self.last_frame_path.exists():
                 if self.video_name in self.last_frame_data.keys():
                     self.move_to_last_labeled_frame()
+
+            # Fix the size of the GUI
+            self.setFixedWidth(self.width())
+            self.setFixedHeight(self.height())
         except AttributeError:
             QtWidgets.QMessageBox.warning(self, 'Error', 'Unable to load the Video \n'
                                                          'Make sure to load right the video')
@@ -596,8 +600,6 @@ class MainGUI(QMainWindow):
             ret, self.image = self.cap.read()
             self.image = process_frame(self.image, scale_factor=self.parameters.scale_factor)
             self.imageLabel.setPixmap(qt_image_process(self.image))
-            # self.setFixedWidth(self.width())
-            # self.setFixedHeight(self.height())
             self.animal_bodypoints = {}
             self.bodypoints1 = {}
             self.bodypoints2 = {}
@@ -661,9 +663,6 @@ class MainGUI(QMainWindow):
 
     def mouseDoubleClickEvent(self, event: QtGui.QMouseEvent) -> None:
         self.top_toolbar.setFocus()
-
-    # def event_label_with_left_click(self):
-    #     self.click_label_button = Qt.LeftButton
 
     def calculate_image_pos(self):
         # check if any toolbar is at the starting corner
