@@ -558,15 +558,15 @@ class MainGUI(QMainWindow):
         try:
             if self.h5_name:
                 try:
-                    from_frame_number = int(self.frame_from.text())
-                    to_frame_number = int(self.frame_to.text())
+                    self.from_frame_number = int(self.frame_from.text())
+                    self.to_frame_number = int(self.frame_to.text())
                 except ValueError:
                     QtWidgets.QMessageBox.warning(self, 'ValueError', 'invalid number entered - integer required')
-                if to_frame_number == self.length:
-                    to_frame_number = to_frame_number
+                if self.to_frame_number == self.length:
+                    self.to_frame_number = self.to_frame_number
                 else:
-                    to_frame_number += 1
-                swap_label_sequences(self.h5, from_frame_number, to_frame_number, self.h5_name)
+                    self.to_frame_number += 1
+                swap_label_sequences(self.h5, self.from_frame_number, self.to_frame_number, self.h5_name)
                 self.h5 = pd.read_hdf(self.h5_name)
                 self.image = process_frame(self.image, scale_factor=int(1 / self.scale_factor))
                 self.image = plot_tracked_points(self.image, self.h5, self.frame_number, self.skeleton)
@@ -716,7 +716,7 @@ def main():
     app.aboutToQuit.connect(widget.my_exit_handler)
     widget.resize(800, 800)
     widget.setWindowTitle('Pose Correction GUI')
-    SrcSize = QScreen.availableGeometry(QApplication.primaryScreen())
+    # SrcSize = QScreen.availableGeometry(QApplication.primaryScreen())
     # frmX = (SrcSize.width() - widget.width()) / 2
     # frmY = (SrcSize.height() - widget.height()) / 2
     # widget.move(frmX, frmY)
