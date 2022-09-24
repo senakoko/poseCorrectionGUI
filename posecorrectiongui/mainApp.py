@@ -214,6 +214,7 @@ class MainGUI(QMainWindow):
         self.jump_number = QtWidgets.QLineEdit()
         self.jump_number.setPlaceholderText('Enter steps')
         self.jump_number.setFixedWidth(100)
+        self.jump_number.returnPressed.connect(self.event_disable_lineedit)
 
         self.swap_labels = QtWidgets.QPushButton('Swap Labels')
         font = self.swap_labels.font()
@@ -253,6 +254,7 @@ class MainGUI(QMainWindow):
         self.prop_line.setFont(font)
         self.prop_line.setFixedWidth(100)
         self.prop_line.setPlaceholderText('Enter steps')
+        self.prop_line.returnPressed.connect(self.event_disable_lineedit)
 
         self.prop_backward = QtWidgets.QPushButton('Propagate Backward')
         self.prop_backward.setFont(font)
@@ -326,7 +328,7 @@ class MainGUI(QMainWindow):
             QtWidgets.QMessageBox.warning(self, 'Error', 'File  does not exist \n'
                                                          'You might need to restart the GUI')
 
-    def move_to_last_labeled_frame(self):
+    def move_to_last_labeled_frame(self) -> None:
         last_frame_output = QtWidgets.QMessageBox.question(self, 'Last Frame',
                                                            'Do you want to go to the last labeled frame',
                                                            buttons=(QtWidgets.QMessageBox.StandardButton.Yes |
@@ -418,7 +420,7 @@ class MainGUI(QMainWindow):
             QtWidgets.QMessageBox.warning(self, 'Error', 'Load the Video first')
 
     # Moving backward through the video one frame at a time.
-    def event_previous_frame(self):
+    def event_previous_frame(self) -> None:
         try:
             self.frame_number -= 1
             if self.frame_number < 0:
@@ -441,7 +443,7 @@ class MainGUI(QMainWindow):
             QtWidgets.QMessageBox.warning(self, 'Error', 'Load the Video first')
 
     # Jump forward a set number of frames
-    def event_jump_forward(self):
+    def event_jump_forward(self) -> None:
         try:
             self.val_num = self.jump_number.text()
             if self.val_num == '':
@@ -471,7 +473,7 @@ class MainGUI(QMainWindow):
             QtWidgets.QMessageBox.warning(self, 'Error', 'Load the Video first')
 
     # Jump backward a set number of frames
-    def event_jump_backward(self):
+    def event_jump_backward(self) -> None:
         try:
             self.val_num = self.jump_number.text()
             if self.val_num == '':
@@ -501,7 +503,7 @@ class MainGUI(QMainWindow):
             QtWidgets.QMessageBox.warning(self, 'Error', 'Load the Video first')
 
     # Going to a specific frame in the video
-    def event_go_to_frame(self):
+    def event_go_to_frame(self) -> None:
         try:
             self.goto_num = self.goto_frame.text()
             if self.goto_num == '':
@@ -530,15 +532,15 @@ class MainGUI(QMainWindow):
             QtWidgets.QMessageBox.warning(self, 'Error', 'Frame does not exits')
 
     # Get the frame number to start the sequence swap
-    def event_mark_start(self):
+    def event_mark_start(self) -> None:
         self.frame_from.setText(str(self.frame_number))
 
     # Get the frame number to end the sequence swap
-    def event_mark_end(self):
+    def event_mark_end(self) -> None:
         self.frame_to.setText(str(self.frame_number))
 
     # Swap the labels for mis-tracked points on the animals for a single frame
-    def event_swap_frame(self):
+    def event_swap_frame(self) -> None:
         try:
             if self.h5_name:
                 swap_labels(self.h5, self.frame_number, self.h5_name)
@@ -552,7 +554,7 @@ class MainGUI(QMainWindow):
 
     # Swap the labels for mis-tracked points on the animals for a sequence of frames.
     # Only works for two tracked animals.
-    def event_swap_sequence(self):
+    def event_swap_sequence(self) -> None:
         try:
             if self.h5_name:
                 try:
@@ -574,7 +576,7 @@ class MainGUI(QMainWindow):
             QtWidgets.QMessageBox.warning(self, 'Error', 'Load the Video first')
 
     # Propagate rightly tracked body points from the previous image to the current one
-    def event_propagate_forward(self):
+    def event_propagate_forward(self) -> None:
         try:
             if self.h5_name:
                 steps = self.prop_line.text()
@@ -598,7 +600,7 @@ class MainGUI(QMainWindow):
             QtWidgets.QMessageBox.warning(self, 'Error', 'Load the Video first')
 
     # Propagate rightly tracked body points from the previous image to the current one
-    def event_propagate_backward(self):
+    def event_propagate_backward(self) -> None:
         try:
             if self.h5_name:
                 steps = self.prop_line.text()
@@ -619,7 +621,7 @@ class MainGUI(QMainWindow):
         except AttributeError:
             QtWidgets.QMessageBox.warning(self, 'Error', 'Load the Video first')
 
-    def event_relabel_animals(self):
+    def event_relabel_animals(self) -> None:
         if self.video_name:
             self.cap.set(1, self.frame_number)
             ret, self.image = self.cap.read()
@@ -630,7 +632,7 @@ class MainGUI(QMainWindow):
             self.bodypoints2 = {}
             self.index = 0
 
-    def event_done_labeling(self):
+    def event_done_labeling(self) -> None:
         try:
             self.cap.set(1, self.frame_number)
             ret, self.image = self.cap.read()
@@ -643,7 +645,7 @@ class MainGUI(QMainWindow):
         except AttributeError:
             QtWidgets.QMessageBox.warning(self, 'Error', 'Load the Video first')
 
-    def event_update_selection(self):
+    def event_update_selection(self) -> None:
         self.index = 0
         self.body_parts_list.setCurrentRow(self.index)
 
@@ -692,12 +694,15 @@ class MainGUI(QMainWindow):
     def mouseDoubleClickEvent(self, event: QtGui.QMouseEvent) -> None:
         self.top_toolbar.setFocus()
 
-    def calculate_image_pos(self):
+    def event_disable_lineedit(self) -> None:
+        self.top_toolbar.setFocus()
+
+    def calculate_image_pos(self) -> None:
         # check if any toolbar is at the starting corner
         self.image_x_value = self.imageLabel.pos().x()
         self.image_y_value = self.imageLabel.pos().y()
 
-    def my_exit_handler(self):
+    def my_exit_handler(self) -> None:
         try:
             if self.video_name:
                 save_last_frame_number(self.frame_number, self.video_name)
