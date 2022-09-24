@@ -3,7 +3,6 @@ from pathlib import Path
 import yaml
 import cv2
 import pandas as pd
-import re
 
 from PySide6 import QtWidgets, QtGui
 from PySide6.QtCore import Qt, QPoint
@@ -67,7 +66,6 @@ class MainGUI(QMainWindow):
 
         self.create_ui()
         self.imageLabel = QtWidgets.QLabel()
-        # self.setFocus()
 
         self.setCentralWidget(self.imageLabel)
 
@@ -106,10 +104,12 @@ class MainGUI(QMainWindow):
         self.addToolBar(self.top_toolbar)
         self.top_toolbar.addAction(self.open_video_action)
         self.top_toolbar.addAction(self.open_h5_action)
+        self.top_toolbar.addSeparator()
+        self.top_toolbar.addWidget(self.frame_number_widget)
 
         self.left_side_toolbar = QToolBar('Frame Toolbar')
         self.addToolBar(Qt.LeftToolBarArea, self.left_side_toolbar)
-        self.left_side_toolbar.addWidget(self.frame_number_widget)
+        # self.left_side_toolbar.addWidget(self.frame_number_widget)
         self.left_side_toolbar.addSeparator()
         self.left_side_toolbar.addWidget(QtWidgets.QLabel('Go To Frame: '))
         self.left_side_toolbar.addWidget(self.goto_frame)
@@ -317,8 +317,8 @@ class MainGUI(QMainWindow):
                     self.move_to_last_labeled_frame()
 
             # Fix the size of the GUI
-            self.setFixedWidth(self.width())
-            self.setFixedHeight(self.height())
+            # self.setFixedWidth(self.width())
+            # self.setFixedHeight(self.height())
         except AttributeError:
             QtWidgets.QMessageBox.warning(self, 'Error', 'Unable to load the Video \n'
                                                          'Make sure to load right the video')
@@ -336,6 +336,7 @@ class MainGUI(QMainWindow):
             self.frame_number = self.last_frame_data[self.video_name]
             self.cap.set(1, self.frame_number)
             ret, self.image = self.cap.read()
+            self.image = process_frame(self.image, scale_factor=self.parameters.scale_factor)
             self.frame_slider_widget.setValue(self.frame_number)
             self.imageLabel.setPixmap(qt_image_process(self.image))
             self.frame_number_widget.setText(f"Frames: {self.frame_number} / {self.length}")

@@ -2,10 +2,10 @@
 ### open the file browser
 
 videos_main_path:
-- /Users/senaagezo/Downloads/Test/
+- /Users/senaagezo/Desktop/Test/
 
 h5files_path:
-- /Users/senaagezo/Downloads/Test/
+-   /Users/senaagezo/Desktop/Test/
 
 ### Define the animals in the H5 files and the body parts that were labeled
 animals:
