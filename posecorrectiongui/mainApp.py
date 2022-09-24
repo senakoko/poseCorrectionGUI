@@ -32,6 +32,7 @@ class MainGUI(QMainWindow):
         self.video_name = video_name
         self.h5_name = h5_name
         self.click_label_button = Qt.RightButton
+        self.event_use_wasd_keys(use_wasd=False)
 
         # Using Configuration Files ############################################################################
         config_path = Path('.') / 'config.yaml'
@@ -167,25 +168,25 @@ class MainGUI(QMainWindow):
         self.next_frame_action = QAction(QIcon(), '&Next Frame', self,
                                          toolTip="Go to the next Frame",
                                          triggered=self.event_next_frame,
-                                         shortcut=QKeySequence("right")
+                                         shortcut=QKeySequence(self.next_frame_key)
                                          )
 
         self.previous_frame_action = QAction(QIcon(), 'Previous Frame',
                                              toolTip="Go to the previous Frame",
                                              triggered=self.event_previous_frame,
-                                             shortcut=QKeySequence("left")
+                                             shortcut=QKeySequence(self.previous_frame_key)
                                              )
 
         self.jump_forward_action = QAction(QIcon(), 'Jump Forward',
                                            toolTip="Jump Forward N Frames",
                                            triggered=self.event_jump_forward,
-                                           shortcut=QKeySequence("up")
+                                           shortcut=QKeySequence(self.jump_forward_key)
                                            )
 
         self.jump_backward_action = QAction(QIcon(), 'Jump Backward',
                                             toolTip="Jump Backward N Frames",
                                             triggered=self.event_jump_backward,
-                                            shortcut=QKeySequence("down")
+                                            shortcut=QKeySequence(self.jump_backward_key)
                                             )
 
         self.mark_start_action = QAction(QIcon(), 'Mark Start',
@@ -693,6 +694,18 @@ class MainGUI(QMainWindow):
 
     def mouseDoubleClickEvent(self, event: QtGui.QMouseEvent) -> None:
         self.top_toolbar.setFocus()
+
+    def event_use_wasd_keys(self, use_wasd: bool = True) -> None:
+        if use_wasd:
+            self.next_frame_key = 'd'
+            self.previous_frame_key = 'a'
+            self.jump_forward_key = 'w'
+            self.jump_backward_key = 's'
+        else:
+            self.next_frame_key = 'right'
+            self.previous_frame_key = 'left'
+            self.jump_forward_key = 'up'
+            self.jump_backward_key = 'down'
 
     def event_disable_lineedit(self) -> None:
         self.top_toolbar.setFocus()
