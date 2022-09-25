@@ -211,6 +211,7 @@ class MainGUI(QMainWindow):
         self.goto_frame.setPlaceholderText('Enter Frame #')
         self.goto_frame.setFixedWidth(100)
         self.goto_frame.textChanged.connect(self.event_go_to_frame)
+        self.goto_frame.returnPressed.connect(self.event_disable_lineedit)
 
         self.jump_number = QtWidgets.QLineEdit()
         self.jump_number.setPlaceholderText('Enter steps')
@@ -227,10 +228,12 @@ class MainGUI(QMainWindow):
         self.frame_from = QtWidgets.QLineEdit()
         self.frame_from.setPlaceholderText('From')
         self.frame_from.setFixedWidth(120)
+        self.frame_from.returnPressed.connect(self.event_disable_lineedit)
 
         self.frame_to = QtWidgets.QLineEdit()
         self.frame_to.setPlaceholderText('To')
         self.frame_to.setFixedWidth(120)
+        self.frame_to.returnPressed.connect(self.event_disable_lineedit)
 
         self.swap_sequence_button = QtWidgets.QPushButton('Swap Sequence')
         font = self.swap_sequence_button.font()
