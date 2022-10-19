@@ -9,11 +9,12 @@ The GUI was built using [PySide](https://wiki.qt.io/Qt_for_Python)
 so refer to the website if you have any installation issues.
 
 ## Installation:
-1. Create a new conda environment <code>conda create -n pcg python=3.7 -y </code>
-2. Activate desired conda environment <code> conda activate pcg </code>
-3. Download the repository and unzip contents. Open terminal and 
-navigate to unzipped folder containing requirements.txt.
-4. Run   
+1. Open a terminal
+2. Download the repository <code> git clone https://github.com/senakoko/poseCorrectionGUI.git </code>
+3. Create a new conda environment <code>conda create -n pcg python=3.7 -y </code>
+4. Activate desired conda environment <code> conda activate pcg </code>
+5. Navigate to unzipped folder containing requirements.txt.  
+6. Run   
 <code>
 pip install -r requirements.txt  
 </code>  
