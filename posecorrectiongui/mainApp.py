@@ -1,8 +1,10 @@
+import os.path
 import sys
 from pathlib import Path
 import yaml
 import cv2
 import pandas as pd
+import numpy as np
 
 from PySide6 import QtWidgets, QtGui
 from PySide6.QtCore import Qt, QPoint
@@ -19,6 +21,7 @@ from swapLabels import swap_labels, swap_label_sequences
 from propagateFrame import propagate_frame
 from relabelPoints import relabel_points
 from updateH5file import update_h5file
+from saveFrames import save_frame
 
 
 class MainGUI(QMainWindow):
@@ -54,6 +57,7 @@ class MainGUI(QMainWindow):
         self.animals_list = config['animals']
         self.animals_identity = self.animals_list.copy()
         self.animals_identity.append('both')
+        self.save_frame_path = config['frames_path']
 
         self.body_parts_keys = {}
         for i, v in enumerate(self.body_parts):
@@ -121,6 +125,8 @@ class MainGUI(QMainWindow):
         self.left_side_toolbar.addWidget(self.jump_number)
         self.left_side_toolbar.addAction(self.jump_backward_action)
         self.left_side_toolbar.addWidget(self.swap_labels)
+        self.left_side_toolbar.addSeparator()
+        self.left_side_toolbar.addWidget(self.save_frame_widget)
 
         self.right_side_toolbar = QToolBar('Sequence Toolbar')
         self.addToolBar(Qt.RightToolBarArea, self.right_side_toolbar)
@@ -220,7 +226,7 @@ class MainGUI(QMainWindow):
 
         self.swap_labels = QtWidgets.QPushButton('Swap Labels')
         font = self.swap_labels.font()
-        font.setPointSize(15)
+        font.setPointSize(10)
         self.swap_labels.setFont(font)
         self.swap_labels.clicked.connect(self.event_swap_frame)
         self.swap_labels.setShortcut(QKeySequence("Ctrl+'"))
@@ -237,7 +243,7 @@ class MainGUI(QMainWindow):
 
         self.swap_sequence_button = QtWidgets.QPushButton('Swap Sequence')
         font = self.swap_sequence_button.font()
-        font.setPointSize(15)
+        font.setPointSize(10)
         self.swap_sequence_button.setFont(font)
         self.swap_sequence_button.clicked.connect(self.event_swap_sequence)
         self.swap_sequence_button.setShortcut(QKeySequence("Ctrl+/"))
@@ -304,6 +310,13 @@ class MainGUI(QMainWindow):
         self.frame_slider_widget.setSingleStep(1)
         self.frame_slider_widget.valueChanged[int].connect(self.event_frame_slider)
 
+        self.save_frame_widget = QtWidgets.QPushButton('Save Frame')
+        font = self.save_frame_widget.font()
+        font.setPointSize(10)
+        self.save_frame_widget.setFont(font)
+        self.save_frame_widget.setShortcut(QKeySequence("Ctrl+s"))
+        self.save_frame_widget.clicked.connect(self.event_save_frame)
+
     # Load the video file
     def open_vid_file(self) -> None:
         try:
@@ -313,6 +326,7 @@ class MainGUI(QMainWindow):
                                                                             dir=self.videos_main_path)
             self.cap = cv2.VideoCapture(self.video_name)
             self.length = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT)) - 1
+            self.indexlength = int(np.ceil(np.log10(self.length)))
             self.frame_slider_widget.setRange(0, self.length)
             ret, self.image = self.cap.read()
             self.image = process_frame(self.image, scale_factor=self.parameters.scale_factor)
@@ -717,6 +731,13 @@ class MainGUI(QMainWindow):
         # check if any toolbar is at the starting corner
         self.image_x_value = self.imageLabel.pos().x()
         self.image_y_value = self.imageLabel.pos().y()
+
+    def event_save_frame(self) -> None:
+        output_path = f'{self.save_frame_path[0]}{Path(self.video_name).stem}'
+        if not os.path.exists(output_path):
+            os.makedirs(output_path)
+        frame = process_frame(self.image, scale_factor=int(1 / self.scale_factor))
+        save_frame(frame=frame, index=self.frame_number, indexlength=self.indexlength, output_path=output_path)
 
     def my_exit_handler(self) -> None:
         try:

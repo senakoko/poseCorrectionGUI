@@ -2,10 +2,10 @@
 ### open the file browser
 
 videos_main_path:
-- /Users/senaagezo/Desktop/Oxytocin/
+- /Users/senaagezo/Downloads/Oxytocin/
 
 h5files_path:
--   /Users/senaagezo/Desktop/Oxytocin/
+-   /Users/senaagezo/Downloads/Oxytocin/
 
 ### Define the animals in the H5 files and the body parts that were labeled
 animals:
@@ -57,3 +57,6 @@ skeleton:
   - tailStart
 - - leftHip
   - tailStart
+
+frames_path:
+- /Users/senaagezo/Downloads/Oxytocin/labeled-data/
