@@ -736,7 +736,9 @@ class MainGUI(QMainWindow):
         output_path = f'{self.save_frame_path[0]}{Path(self.video_name).stem}'
         if not os.path.exists(output_path):
             os.makedirs(output_path)
-        frame = process_frame(self.image, scale_factor=int(1 / self.scale_factor))
+        self.cap.set(1, self.frame_number)
+        ret, image = self.cap.read()
+        frame = process_frame(image, scale_factor=int(1 / self.scale_factor))
         save_frame(frame=frame, index=self.frame_number, indexlength=self.indexlength, output_path=output_path)
 
     def my_exit_handler(self) -> None:
