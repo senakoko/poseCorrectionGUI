@@ -738,8 +738,7 @@ class MainGUI(QMainWindow):
             os.makedirs(output_path)
         self.cap.set(1, self.frame_number)
         ret, image = self.cap.read()
-        frame = process_frame(image, scale_factor=int(1 / self.scale_factor))
-        save_frame(frame=frame, index=self.frame_number, indexlength=self.indexlength, output_path=output_path)
+        save_frame(frame=image, index=self.frame_number, indexlength=self.indexlength, output_path=output_path)
 
     def my_exit_handler(self) -> None:
         try:
