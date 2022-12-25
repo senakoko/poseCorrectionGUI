@@ -22,6 +22,8 @@ from propagateFrame import propagate_frame
 from relabelPoints import relabel_points
 from updateH5file import update_h5file
 from saveFrames import save_frame
+from findBadTracking import find_bad_tracking
+from moveToIndex import move_to_index
 
 
 class MainGUI(QMainWindow):
@@ -127,6 +129,10 @@ class MainGUI(QMainWindow):
         self.left_side_toolbar.addWidget(self.swap_labels)
         self.left_side_toolbar.addSeparator()
         self.left_side_toolbar.addWidget(self.save_frame_widget)
+        self.left_side_toolbar.addSeparator()
+        self.left_side_toolbar.addWidget(self.find_bad_tracking_button)
+        self.left_side_toolbar.addWidget(self.next_index_button)
+        self.left_side_toolbar.addWidget(self.behavior_index_completion)
 
         self.right_side_toolbar = QToolBar('Sequence Toolbar')
         self.addToolBar(Qt.RightToolBarArea, self.right_side_toolbar)
@@ -316,6 +322,28 @@ class MainGUI(QMainWindow):
         self.save_frame_widget.setFont(font)
         self.save_frame_widget.setShortcut(QKeySequence("Ctrl+s"))
         self.save_frame_widget.clicked.connect(self.event_save_frame)
+
+        self.find_bad_tracking_button = QtWidgets.QPushButton("Find Bad Tracking")
+        font = self.save_frame_widget.font()
+        font.setPointSize(10)
+        self.find_bad_tracking_button.setFont(font)
+        self.find_bad_tracking_button.clicked.connect(self.event_find_bad_tracking)
+
+        self.next_index_button = QtWidgets.QPushButton('Next Bad Tracking')
+        self.next_index_button.setFont(font)
+        self.next_index_button.setFixedWidth(120)
+        self.next_index_button.clicked.connect(self.event_move_to_index)
+        self.next_index_button.setShortcut(QKeySequence("Ctrl+n"))
+
+        self.done_fixing_button = QtWidgets.QPushButton('Done Fixing Tracking')
+        self.done_fixing_button.setFont(font)
+        self.done_fixing_button.setFixedWidth(120)
+        # self.done_fixing_button.clicked.connect(self.event_done_fixing)
+
+        self.behavior_index_completion = QtWidgets.QLabel()
+        font = self.behavior_index_completion.font()
+        font.setPointSize(8)
+        self.behavior_index_completion.setFont(font)
 
     # Load the video file
     def open_vid_file(self) -> None:
@@ -746,6 +774,41 @@ class MainGUI(QMainWindow):
                 save_last_frame_number(self.frame_number, self.video_name)
         except AttributeError:
             return
+
+    def event_find_bad_tracking(self):
+        try:
+            find_bad_tracking(self.h5_name)
+        except NotImplementedError:
+            QtWidgets.QMessageBox.warning(self, 'Error', 'Make sure to load the h5 file')
+
+    def event_move_to_index(self) -> None:
+        try:
+            self.goto_index, self.index_completion = move_to_index(self.h5_name, self.frame_number)
+            if self.goto_index == '':
+                self.goto_index = '0'
+            try:
+                self.frame_number = int(self.goto_index)
+            except ValueError:
+                QtWidgets.QMessageBox.warning(self, 'ValueError', 'invalid number entered')
+            self.goto_frame.setText(str(self.frame_number))
+            self.frame_slider_widget.setValue(self.frame_number)
+            self.behavior_index_completion.setText(f'Gone through: {self.index_completion}%')
+            if self.video_name:
+                if self.frame_number > self.length:
+                    self.frame_number = self.length
+                self.cap.set(1, self.frame_number)
+                ret, self.image = self.cap.read()
+                if self.h5_name:
+                    self.image = plot_tracked_points(self.image, self.h5, self.frame_number, self.skeleton)
+                    self.image = process_frame(self.image, scale_factor=self.scale_factor)
+                    self.imageLabel.setPixmap(qt_image_process(self.image))
+                    self.frame_number_widget.setText(f"Frames: {self.frame_number} / {self.length}")
+                else:
+                    self.image = process_frame(self.image, scale_factor=self.scale_factor)
+                    self.imageLabel.setPixmap(qt_image_process(self.image))
+                    self.frame_number_widget.setText(f"Frames: {self.frame_number} / {self.length}")
+        except AttributeError:
+            QtWidgets.QMessageBox.warning(self, 'Error', 'Frame does not exits')
 
 
 def main():
