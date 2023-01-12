@@ -14,7 +14,7 @@ def set_run_parameters(parameters=None):
 
     line_edit_width = 100
 
-    scale_factor = 0.5  # the scale factor to resize the image. O.5 is recommended
+    scale_factor = 1 # the scale factor to resize the image. O.5 is recommended
 
     if 'font_small' not in parameters.keys():
         parameters.font_small = font_small
